@@ -6,9 +6,9 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import ProtectedRoute from "./router/ProtectedRoute ";
-import Login from './pages/Login';
 import 'animate.css';
 import './App.css'
+import Login from './pages/Login';
 import Home from "./pages/Home";
 import Paciente from "./pages/Paciente";
 import Doctor from "./pages/Doctor";

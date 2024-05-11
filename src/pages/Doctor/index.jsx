@@ -29,7 +29,6 @@ export default function Doctor() {
   const [perfil, sertPerfil] = useState({});
 
   
-  
 
   const { isLoading, data } = useQuery({
     queryKey: ['d'],

@@ -10,7 +10,7 @@ const ProtectedRoute = ({ children, roles }) => {
     
     useEffect(() => {
         if (!(roles.includes("Administrador"))) {
-            return navigate('/Login');;
+            return navigate('/Login');
         }
 
     }, [])

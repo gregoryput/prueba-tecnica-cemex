@@ -31,12 +31,14 @@ export default function Home() {
               </span>
               <p>Doctores</p>
             </button>
+
             <button className='Button' onMouseLeave={() => { setHover(false) }} onMouseEnter={() => { setHover(true) }} onClick={() => { navigate("/Paciente") }}  >
               <span className="icons">
                 <ion-icon name="person-outline" ></ion-icon>
               </span>
               <p>Pacientes</p>
             </button>
+            
           </div>
         </div>
       </div>
