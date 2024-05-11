@@ -18,25 +18,37 @@ namespace Api_7._0.Repositories
             _conexionDB = new ConexionDB();
         }
 
-        public IEnumerable<Doctor> get()
+        public async Task<IEnumerable<Doctor>> Get()
         {
-            string query = @"select IDDoctor, Nombre , Especialidad, Hospital from Doctor";
-            var resultSet = _conexionDB.GetConnection(_configuration).Query<Doctor>(query);
-            return resultSet.ToList();
+            string query = @"SELECT IDDoctor, Nombre, Especialidad, Hospital FROM Doctor";
+            IEnumerable<Doctor> response;
+
+            using (var connection = _conexionDB.GetConnection(_configuration))
+            {
+                response = await connection.QueryAsync<Doctor>(query);
+            }
+
+            return response.ToList();
         }
 
-        public IEnumerable<PacientesDTO> getPacientesByID(int IDdoctor)
+        public async Task<IEnumerable<PacientesDTO>>  getPacientesByID(int IDdoctor)
         {
             string query = @"select a.IDDoctor, a.IDPaciente , p.Nombre, Edad, genero, Direccion , Telefono  from Asignacion_Paciente_Doctor a
                                 INNER JOIN Paciente p ON p.IDPaciente = a.IDPaciente
                                 INNER JOIN Doctor d ON d.IDDoctor = a.IDDoctor
                                 WHERE d.IDDoctor =  @IDdoctor";
 
-            var resultSet = _conexionDB.GetConnection(_configuration).Query<PacientesDTO>(query ,new { IDdoctor = IDdoctor });
-            return resultSet.ToList();
+            IEnumerable<PacientesDTO> response;
+            using (var connection = _conexionDB.GetConnection(_configuration))
+            {
+                response = await _conexionDB.GetConnection(_configuration).QueryAsync<PacientesDTO>(query, new { IDdoctor = IDdoctor });
+
+            }
+
+            return response.ToList();
         }
 
-        public IEnumerable<PacientesDTO> getPacientesNotRegistrado(int IDdoctor)
+        public async Task<IEnumerable<PacientesDTO>> getPacientesNotRegistrado(int IDdoctor)
         {
             string query = @"SELECT a.IDDoctor, p.IDPaciente, p.Nombre, p.Edad, p.Genero, p.Direccion, p.Telefono
                             FROM Paciente p
@@ -48,109 +60,85 @@ namespace Api_7._0.Repositories
                                 WHERE IDDoctor = @IDdoctor 
                             ); ";
 
-            var resultSet = _conexionDB.GetConnection(_configuration).Query<PacientesDTO>(query, new { IDdoctor = IDdoctor });
-            return resultSet.ToList();
+            IEnumerable<PacientesDTO> response;
+
+            using (var connection = _conexionDB.GetConnection(_configuration))
+            {
+                response = await _conexionDB.GetConnection(_configuration).QueryAsync<PacientesDTO>(query, new { IDdoctor = IDdoctor });
+
+            }
+
+            return response.ToList();
         }
 
 
-        public void AsignarPaciente( int IDPaciente,int IDDoctor)
+        public async Task AsignarPaciente(int IDPaciente, int IDDoctor)
         {
-            var connection = _conexionDB.GetConnection(_configuration);
-            connection.Open();
-
-            try
+            using (var connection = _conexionDB.GetConnection(_configuration))
             {
-                string query = @"INSERT INTO Asignacion_Paciente_Doctor (IDPaciente, IDDoctor)
-                                    VALUES
-                                    (@IDPaciente, @IDDoctor)";
-                connection.Execute(query, new { IDPaciente = IDPaciente, IDDoctor = IDDoctor, }, commandType: CommandType.Text);
-            }
-            catch (Exception ex)
-            {
+                await connection.OpenAsync();
 
-                connection.Close();
-                throw ex;
-            }
-            connection.Close();
-        }
-
-        public void Insert(Doctor doctor)
-        {
-            var connection = _conexionDB.GetConnection(_configuration);
-            connection.Open();
-
-            try
-            {
-                string query = @"INSERT INTO Doctor (Nombre, Especialidad, Hospital) VALUES (@Nombre, @Especialidad, @Hospital)";
-                connection.Execute(query, new { Nombre = doctor.Nombre, Especialidad = doctor.Especialidad, Hospital = doctor.Hospital }, commandType: CommandType.Text);
-            }
-            catch (Exception ex)
-            {
-
-                connection.Close();
-                throw ex;
-            }
-            connection.Close();
-        }
-
-
-
-
-        public void Update(Doctor doctor)
-        {
-            var connection = _conexionDB.GetConnection(_configuration);
-            connection.Open();
-
-
-            try
-            {
-
-                string query = @"UPDATE Doctor 
-                     SET Nombre = @Nombre, Especialidad = @Especialidad, Hospital = @Hospital
-                     WHERE IDDoctor = @IDDoctor";
-
-                connection.Execute(query, new
+                try
                 {
-                    doctor.Nombre,
-                    doctor.Especialidad,
-                    doctor.Hospital,
-                    doctor.IDDoctor
-                }, commandType: CommandType.Text);
-
+                    string query = @"INSERT INTO Asignacion_Paciente_Doctor (IDPaciente, IDDoctor)
+                             VALUES
+                             (@IDPaciente, @IDDoctor)";
+                    await connection.ExecuteAsync(query, new { IDPaciente = IDPaciente, IDDoctor = IDDoctor }, commandType: CommandType.Text);
+                }
+                finally
+                {
+                    connection.Close();
+                }
             }
-            catch (Exception ex)
-            {
-
-                connection.Close();
-                throw ex;
-            }
-            connection.Close();
         }
 
-    
-        public void Delete(int IDdoctor)
+        public async Task Insert(Doctor doctor)
         {
-            var connection = _conexionDB.GetConnection(_configuration);
-            connection.Open();
-         
-
-            try
+            using (var connection = _conexionDB.GetConnection(_configuration))
             {
-                string query = @"DELETE FROM Doctor WHERE IDdoctor = @IDdoctor";
+                await connection.OpenAsync();
 
-                connection.Execute(query, new { IDdoctor = IDdoctor }, commandType: CommandType.Text);
-
-               
+                try
+                {
+                    string query = @"INSERT INTO Doctor (Nombre, Especialidad, Hospital) VALUES (@Nombre, @Especialidad, @Hospital)";
+                    await connection.ExecuteAsync(query, new { doctor.Nombre, doctor.Especialidad, doctor.Hospital }, commandType: CommandType.Text);
+                }
+                finally
+                {
+                    connection.Close();
+                }
             }
-
-            catch (Exception ex)
-            {
-               
-                connection.Close();
-                throw ex;
-            }
-            connection.Close();
         }
+
+        public async Task Update(Doctor doctor)
+        {
+            using (var connection = _conexionDB.GetConnection(_configuration))
+            {
+                await connection.OpenAsync();
+
+                try
+                {
+                    string query = @"UPDATE Doctor 
+                             SET Nombre = @Nombre, Especialidad = @Especialidad, Hospital = @Hospital
+                             WHERE IDDoctor = @IDDoctor";
+
+                    await connection.ExecuteAsync(query, new
+                    {
+                        doctor.Nombre,
+                        doctor.Especialidad,
+                        doctor.Hospital,
+                        doctor.IDDoctor
+                    }, commandType: CommandType.Text);
+                }
+                finally
+                {
+                    connection.Close();
+                }
+            }
+        }
+
+  
+
 
     }
 }

@@ -24,98 +24,65 @@ namespace Api_7._0.Controllers
         //[Authorize]
         [Route("Get")]
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
             try
             {
-                var lista = _pacienteRepository.get();
+                var lista = await _pacienteRepository.Get();
                 _respuesta.Result = lista;
-                _respuesta.DisplayMessage = "Listado de usuario obtenido con exito";
+                _respuesta.DisplayMessage = "Listado de usuario obtenido con éxito";
             }
             catch (Exception ex)
             {
                 _respuesta.IsSuccess = false;
-                _respuesta.DisplayMessage = "Error al solicitar la lista de Doctor";
+                _respuesta.DisplayMessage = "Error al solicitar la lista de Paciente";
                 _respuesta.ErrorMessages = new List<string> { ex.ToString() };
             }
 
             return Ok(_respuesta);
-
         }
-
 
         //[Authorize]
         [Route("Insert")]
         [HttpPost]
         public async Task<IActionResult> Insert(Paciente paciente)
         {
-
             try
             {
-
-                _pacienteRepository.Insert(paciente);
+                await  _pacienteRepository.Insert(paciente);
                 _respuesta.IsSuccess = true;
-                _respuesta.DisplayMessage = "Exito";
+                _respuesta.DisplayMessage = "Éxito al insertar paciente";
                 return Ok(_respuesta);
-
             }
-
             catch (Exception ex)
             {
                 _respuesta.IsSuccess = false;
-                _respuesta.DisplayMessage = "Error al insertar Doctor";
+                _respuesta.DisplayMessage = "Error al insertar paciente";
                 _respuesta.ErrorMessages = new List<string> { ex.ToString() };
                 return StatusCode(500, _respuesta);
             }
         }
-
 
         [Route("Update")]
         [HttpPut]
-        public IActionResult ActualizarUsuario(Paciente paciente)
+        public async Task<IActionResult> ActualizarUsuario(Paciente paciente)
         {
-
             try
             {
-
-                _pacienteRepository.Update(paciente);
+                 await  _pacienteRepository.Update(paciente);
                 _respuesta.Result = paciente;
-                _respuesta.DisplayMessage = " Actualizado correctamente";
+                _respuesta.DisplayMessage = "Actualizado correctamente";
                 return Ok(_respuesta);
             }
-
             catch (Exception ex)
             {
                 _respuesta.IsSuccess = false;
-                _respuesta.DisplayMessage = "Error al actualizar";
+                _respuesta.DisplayMessage = "Error al actualizar paciente";
                 _respuesta.ErrorMessages = new List<string> { ex.ToString() };
                 return StatusCode(500, _respuesta);
             }
         }
 
-
-
-        //[Authorize]
-        [Route("Delete")]
-        [HttpDelete]
-        public IActionResult eliminarUsuario(int IDpaciente)
-        {
-            try
-            {
-                _pacienteRepository.Delete(IDpaciente);
-                _respuesta.Result = IDpaciente;
-                _respuesta.DisplayMessage = "Eliminado correctamente";
-            }
-
-            catch (Exception ex)
-            {
-                _respuesta.IsSuccess = false;
-                _respuesta.DisplayMessage = "Error al eliminar";
-                _respuesta.ErrorMessages = new List<string> { ex.ToString() };
-            }
-
-            return Ok(_respuesta);
-        }
 
     }
 }
